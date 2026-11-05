@@ -48,6 +48,15 @@ class SuccessionFlowTest {
 	}
 
 	@Test
+	void Swagger_문서는_로그인_없이_열린다() throws Exception {
+		mvc.perform(get("/v3/api-docs")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.info.title").value("물려받기 API"))
+				// 로그인 사용자(AuthUser)는 요청 파라미터로 드러나지 않아야 한다
+				.andExpect(jsonPath("$.paths['/api/me'].get.parameters").doesNotExist())
+				.andExpect(jsonPath("$.paths['/api/offers/{offerId}/accept'].post.parameters.length()").value(1));
+	}
+
+	@Test
 	void 승계_전체_흐름() throws Exception {
 		String owner = login("흐름 사장님", "OWNER");
 		String youth = login("흐름 청년", "YOUTH");

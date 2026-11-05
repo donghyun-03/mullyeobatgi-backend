@@ -1,7 +1,10 @@
 package com.danditon.mullyeobatgi.shop;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDate;
 
+@Schema(description = "가게 정보. 금액은 만 원 단위. 필드 뜻은 가게 등록 요청과 같아요")
 public record ShopResponse(
 		Long id,
 		Long ownerId,

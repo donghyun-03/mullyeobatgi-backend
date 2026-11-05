@@ -1,11 +1,13 @@
 package com.danditon.mullyeobatgi.schedule;
 
 import com.danditon.mullyeobatgi.user.Role;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Schema(description = "승계 가일정. items 의 state 는 DONE 끝남, NOW 지금 할 일, UPCOMING 앞으로 할 일")
 public record ScheduleResponse(
 		LocalDate retireDate,
 		long daysLeft,

@@ -1,6 +1,7 @@
 package com.danditon.mullyeobatgi.offer;
 
 import com.danditon.mullyeobatgi.shop.Shop;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +9,9 @@ import java.time.LocalDateTime;
 /**
  * 제안 화면에 필요한 가게·조건 요약을 함께 담는다.
  */
+@Schema(description = """
+		제안과, 받은 제안 화면에 필요한 가게·조건 요약. price 는 인수 금액(만 원), matchScore 는 제안할 때의 적합도,
+		expiresAt 은 답할 기한, successionId 는 수락된 제안에만 있어요""")
 public record OfferResponse(
 		Long id,
 		OfferStatus status,

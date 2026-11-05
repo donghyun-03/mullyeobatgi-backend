@@ -1,8 +1,13 @@
 package com.danditon.mullyeobatgi.succession;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * 승계가 지나가는 단계. 두 사람이 각자 확인해야 다음 단계로 넘어간다.
  */
+@Schema(description = """
+		승계 단계: CHECKLIST 체크리스트 확인 → PLANNING 승계 계획 동의 → APPRENTICE 수습 →
+		HANDOVER 운영권 넘겨받기 → COMPLETED 승계 완료""")
 public enum SuccessionStatus {
 
 	/** ⑤ 체크리스트를 양쪽이 확인하는 중 */

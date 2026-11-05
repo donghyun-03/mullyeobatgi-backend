@@ -2,10 +2,12 @@ package com.danditon.mullyeobatgi.plan;
 
 import com.danditon.mullyeobatgi.succession.Succession;
 import com.danditon.mullyeobatgi.user.Role;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Schema(description = "승계 계획. generatedBy 는 AI 또는 TEMPLATE, 두 사람이 모두 동의하면 agreedByBoth 가 true")
 public record PlanResponse(
 		Long id,
 		int version,

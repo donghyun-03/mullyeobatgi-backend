@@ -1,5 +1,7 @@
 package com.danditon.mullyeobatgi.payment;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 /**
  * ⑧ 납입 현황. 금액은 만 원 단위. 사장님이 확인한 금액만 낸 금액으로 센다.
  */
+@Schema(description = "납입 현황. 금액은 만 원 단위. 사장님이 확인한 금액만 낸 금액(confirmedAmount)으로 세요")
 public record PaymentsResponse(
 		int total,
 		int confirmedAmount,

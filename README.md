@@ -8,6 +8,7 @@
 - Spring Web MVC, Spring Data JPA, Spring Security, Validation
 - MySQL 8.4 (Docker Compose), Flyway
 - Spring AI + Claude (API 키를 넣으면 켜짐)
+- springdoc-openapi (Swagger UI)
 - 테스트: JUnit 5, H2 (MySQL 모드)
 
 ## 실행 방법
@@ -20,6 +21,9 @@
 ```
 
 - 서버: http://localhost:8080
+- **Swagger (API 문서·바로 실행)**: http://localhost:8080/swagger-ui.html
+  `POST /api/auth/dev-login` 으로 토큰을 받아 오른쪽 위 **Authorize** 에 넣으면 모든 API를 바로 써 볼 수 있어요.
+  처음 열 때 문서를 만드느라 10초쯤 걸려요.
 - 상태 확인: http://localhost:8080/actuator/health
 - MySQL: `localhost:3307` (DB·사용자·비밀번호 모두 `mullyeobatgi`). 이 PC의 3306은 다른 MySQL이 쓰고 있어서 3307을 써요.
 - 서버를 꺼도 MySQL 컨테이너는 계속 떠 있어요. 끄려면 `docker compose down`, 데이터까지 지우려면 `docker compose down -v`.
