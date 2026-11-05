@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: mullyeobatgi
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:mullyeobatgi}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME:mullyeobatgi}
+    password: ${DB_PASSWORD:mullyeobatgi}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+  flyway:
+    enabled: true
+  docker:
+    compose:
+      # 앱을 끌 때 DB 컨테이너는 그대로 둔다
+      lifecycle-management: start-only
+  ai:
+    model:
+      # API 키를 받으면 AI_CHAT_MODEL=anthropic 과 ANTHROPIC_API_KEY 를 넣는다. none 이면 템플릿으로 동작한다.
+      chat: ${AI_CHAT_MODEL:none}
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+      chat:
+        options:
+          model: ${ANTHROPIC_MODEL:claude-sonnet-5-5}
+          max-tokens: 2000
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  zone: Asia/Seoul
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+  auth:
+    # 시연용 로그인. 실제 배포에서 카카오 로그인만 쓰려면 false
+    dev-login-enabled: ${DEV_LOGIN_ENABLED:true}
+    token-valid-days: 30
+  demo:
+    # DB가 비어 있으면 예시 사장님·청년 데이터를 넣는다
+    seed: ${DEMO_SEED:true}
