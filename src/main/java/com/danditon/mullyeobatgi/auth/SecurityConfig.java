@@ -25,7 +25,8 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService,
 			ObjectProvider<ClientRegistrationRepository> clientRegistrations,
-			KakaoLoginSuccessHandler kakaoLoginSuccessHandler) throws Exception {
+			KakaoLoginSuccessHandler kakaoLoginSuccessHandler,
+			KakaoLoginFailureHandler kakaoLoginFailureHandler) throws Exception {
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.cors(Customizer.withDefaults())
@@ -47,7 +48,9 @@ public class SecurityConfig {
 
 		// 카카오 키가 설정된 kakao 프로필에서만 카카오 로그인을 켠다
 		if (clientRegistrations.getIfAvailable() != null) {
-			http.oauth2Login(oauth -> oauth.successHandler(kakaoLoginSuccessHandler));
+			http.oauth2Login(oauth -> oauth
+					.successHandler(kakaoLoginSuccessHandler)
+					.failureHandler(kakaoLoginFailureHandler));
 		}
 		return http.build();
 	}
