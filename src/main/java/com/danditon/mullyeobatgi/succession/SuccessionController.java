@@ -30,9 +30,6 @@ public class SuccessionController {
 			- `progressPercent`: 진행률 0~100
 			- `checklist`, `roadmap`: 완료 개수/전체 개수. `payments`: 확인된 금액/전체 인수 금액 (만 원)
 			- `nextStep`: 다음 일정과 마감일 (완료되면 null)
-			- `planAgreedDate`: 두 사람이 계획에 동의한 날 (아직이면 null). 홈의 "2026.12 계획 동의" 표시
-			- `roadmapCurrentStage`: 수습 로드맵 지금 단계 번호, `roadmapWaitingApproval`: 사장님 승인을 기다리는 일 개수.
-			  홈의 "2단계 진행 중 · 승인 대기 1개" 표시
 			- **`pendingActions`: 지금 내 차례인 할 일.** 사장님과 청년에게 서로 다르게 나와요.
 
 			| type | 누구 | 뜻 | targetId |

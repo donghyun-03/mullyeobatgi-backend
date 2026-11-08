@@ -43,12 +43,7 @@ public class YouthProfileController {
 					  준비된 자금이 인수 금액의 절반을 넘는지 10점
 					- **조건 40점**: 희망 업종 일치 15, 희망 지역 일치 15(지역을 비우면 8), 새벽 근무 조건 10
 
-					**선택 항목** (와이어프레임 C1 처럼 안 물어봐도 돼요)
-					- `loanAmount`: `loanPlanned` 가 true 인데 비우면, 모자란 금액을 대출로 채운다고 보고 자금 점수를 내요.
-					  `loanPlanned` 가 false 면 0 으로 저장돼요.
-					- `earlyMorningOk`: 비우면 '아직 모름'으로 저장돼요. 새벽 근무가 필요한 가게와는 조건 점수를 절반(5점)만 받고,
-					  이유에 "새벽 근무가 가능한지 아직 몰라요"가 붙어요.
-					- `age`, `experienceDetail`, `intro`: 사장님 매칭 화면에 보여 줄 때만 써요.
+					`loanPlanned` 가 false 면 `loanAmount` 는 0 으로 저장돼요.
 
 					오류: 403 청년이 아닐 때""")
 	@PutMapping

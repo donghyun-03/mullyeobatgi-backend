@@ -58,8 +58,8 @@ public class YouthProfile {
 	@Convert(converter = StringListConverter.class)
 	private List<String> preferredDistricts;
 
-	/** 새벽 근무 가능 여부. null 이면 아직 모름 */
-	private Boolean earlyMorningOk;
+	@Column(nullable = false)
+	private boolean earlyMorningOk;
 
 	private String intro;
 

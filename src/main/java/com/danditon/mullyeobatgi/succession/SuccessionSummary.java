@@ -41,14 +41,8 @@ public record SuccessionSummary(
 		boolean planCreated,
 		@Schema(description = "두 사람이 계획에 동의했는지")
 		boolean planAgreedByBoth,
-		@Schema(description = "두 사람 모두 동의한 날. 아직이면 null", example = "2026-12-20")
-		LocalDate planAgreedDate,
 		@Schema(description = "수습 로드맵: 승인된 일 수 / 전체 (계획 동의 전에는 0/0)")
 		Count roadmap,
-		@Schema(description = "수습 로드맵 지금 단계 번호 (1~3). 로드맵이 없거나 모두 끝나면 null", example = "2")
-		Integer roadmapCurrentStage,
-		@Schema(description = "사장님 승인을 기다리는 수습 일 개수", example = "1")
-		int roadmapWaitingApproval,
 		@Schema(description = "납입: 사장님이 확인한 금액 / 인수 금액 (만 원)")
 		Count payments,
 		@Schema(description = "다음 일정. 승계가 끝나면 null")

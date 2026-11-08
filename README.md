@@ -99,7 +99,7 @@ POST /api/auth/dev-login
 | 메서드 | 경로 | 누가 | 설명 |
 |---|---|---|---|
 | GET, PUT | `/api/owner/shop` | 사장님 | 가게 정보. 은퇴 희망일이 너무 가까우면 `RETIRE_DATE_TOO_SOON` |
-| GET, PUT | `/api/youth/profile` | 청년 | 경력(`NONE`, `UNDER_1Y`, `ONE_TO_3Y`, `OVER_3Y`), 자금, 대출, 희망 업종·지역. 대출 금액과 새벽 근무 여부는 선택 |
+| GET, PUT | `/api/youth/profile` | 청년 | 경력(`NONE`, `UNDER_1Y`, `ONE_TO_3Y`, `OVER_3Y`), 자금, 대출, 희망 업종·지역 |
 
 ### ② 매칭
 
@@ -147,9 +147,6 @@ POST /api/auth/dev-login
 | GET | `/checklist` | 6개 항목과 양쪽 확인 상태 |
 | POST | `/checklist/{itemId}/confirm` | 내 쪽 확인. `{"note": "..."}` 선택 |
 | DELETE | `/checklist/{itemId}/confirm` | 확인 취소 |
-| POST | `/checklist/{itemId}/attachments` | 서류 올리기 (`multipart/form-data`, `file`, PDF·사진 5MB까지) |
-| GET | `/checklist/attachments/{attachmentId}` | 서류 내려받기 |
-| DELETE | `/checklist/attachments/{attachmentId}` | 내가 올린 서류 지우기 |
 
 모든 항목을 두 사람이 확인하면 승계가 `PLANNING`으로 넘어가요.
 
@@ -159,7 +156,7 @@ POST /api/auth/dev-login
 |---|---|---|
 | POST | `/plan` | 초안 만들기(다시 만들기). `generatedBy`가 `AI` 또는 `TEMPLATE` |
 | GET | `/plan` | 계획과 두 사람의 동의 상태 |
-| PATCH | `/plan/sections/{sectionId}` | `{"content": "..."}` 고치기. 고치면 상대방 동의가 풀리고, 고치기 전 내용은 `previousContent` 에 남아요 |
+| PATCH | `/plan/sections/{sectionId}` | `{"content": "..."}` 고치기. 고치면 상대방 동의가 풀려요 |
 | POST | `/plan/agree` | 동의. 두 사람 모두 동의하면 수습 로드맵과 납입 일정이 만들어져요 |
 
 ### ⑦ 수습 로드맵

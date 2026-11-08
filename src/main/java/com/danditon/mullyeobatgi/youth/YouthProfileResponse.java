@@ -18,14 +18,14 @@ public record YouthProfileResponse(
 		int loanAmount,
 		List<String> preferredCategories,
 		List<String> preferredDistricts,
-		Boolean earlyMorningOk,
+		boolean earlyMorningOk,
 		String intro) {
 
 	public static YouthProfileResponse from(YouthProfile p) {
 		return new YouthProfileResponse(p.getId(), p.getUser().getId(), p.getUser().getName(), p.getAge(),
 				p.getExperience(), p.getExperience().label(), p.getExperienceDetail(), p.getFundsReady(),
 				p.isLoanPlanned(), p.getLoanAmount(), p.getPreferredCategories(), p.getPreferredDistricts(),
-				p.getEarlyMorningOk(), p.getIntro());
+				p.isEarlyMorningOk(), p.getIntro());
 	}
 
 }

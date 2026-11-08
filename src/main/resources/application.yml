@@ -15,15 +15,8 @@ spring:
           time_zone: Asia/Seoul
   flyway:
     enabled: true
-  jackson:
-    deserialization:
-      # 프론트가 선택 항목(숫자·true/false)을 빼고 보내도 0 / false 로 받는다 (Jackson 3 기본값은 400 오류)
-      FAIL_ON_NULL_FOR_PRIMITIVES: false
-  servlet:
-    multipart:
-      # 체크리스트 서류는 5MB까지 (ChecklistService 에서도 한 번 더 확인)
-      max-file-size: 5MB
-      max-request-size: 6MB
+    # 되돌린 V2 마이그레이션이 이미 적용된 DB에서도 앱이 켜지게 한다
+    ignore-migration-patterns: "*:missing"
   docker:
     compose:
       # 앱을 끌 때 DB 컨테이너는 그대로 둔다

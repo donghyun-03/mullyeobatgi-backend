@@ -6,7 +6,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -23,11 +22,6 @@ public class GlobalExceptionHandler {
 				.map(error -> error.getField() + ": " + error.getDefaultMessage())
 				.orElse("입력값을 확인해 주세요");
 		return ResponseEntity.badRequest().body(new ErrorResponse("INVALID_INPUT", message));
-	}
-
-	@ExceptionHandler(MaxUploadSizeExceededException.class)
-	public ResponseEntity<ErrorResponse> handleTooLarge(MaxUploadSizeExceededException e) {
-		return ResponseEntity.badRequest().body(new ErrorResponse("FILE_TOO_LARGE", "파일은 5MB까지 올릴 수 있어요"));
 	}
 
 	@ExceptionHandler(HttpMessageNotReadableException.class)

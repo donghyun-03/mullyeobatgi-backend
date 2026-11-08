@@ -40,8 +40,10 @@ public final class PlanTemplate {
 								+ " 단계를 마치면 " + youth + "이 완료를 요청하고 " + owner + "이 승인해요."),
 				new PlanDraftSection("HANDOVER", "운영권 넘기기",
 						date(t.handoverStart()) + "부터 " + youth + "이 가게를 운영하고, " + owner + "은 "
-								+ date(t.retireDate()) + "까지 곁에서 도와요. " + menu
-								+ " 레시피와 단골 손님도 이때까지 함께 넘겨요. 잔금을 내면 승계가 끝나요."),
+								+ date(t.retireDate()) + "까지 곁에서 도와요. 잔금을 내면 승계가 끝나요."),
+				new PlanDraftSection("RECIPE", "레시피와 단골",
+						menu + " 레시피와 단골 손님 관계를 수습 기간에 함께 넘겨요. " + owner
+								+ "이 단골 손님에게 2대 사장님을 직접 소개해요."),
 				new PlanDraftSection("EXIT", "그만두게 되면",
 						"수습 중 한쪽이 그만두면 계약금을 뺀 납입 금액을 2주 안에 돌려줘요. 자세한 조건은 실제 계약서에서 정해요."));
 	}

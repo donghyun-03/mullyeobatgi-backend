@@ -56,8 +56,8 @@ public class PlanController {
 					체크리스트를 두 사람이 모두 확인한 뒤(`PLANNING` 단계) 둘 중 누구나 부를 수 있어요.
 					이미 초안이 있으면 **새로 만들고**, 두 사람의 동의와 고친 내용은 모두 지워져요.
 
-					초안은 4개 항목이에요: `ACQUISITION` 인수 조건, `APPRENTICE` 수습 계획, `HANDOVER` 운영권 넘기기,
-					`EXIT` 그만두게 되면.
+					초안은 5개 항목이에요: `ACQUISITION` 인수 조건, `APPRENTICE` 수습 계획, `HANDOVER` 운영권 넘기기,
+					`RECIPE` 레시피와 단골, `EXIT` 그만두게 되면.
 					날짜와 금액은 가일정과 인수 금액으로 계산해요. AI 키가 있으면 Claude 가 체크리스트 메모를 반영해 문장을 다듬어요.
 
 					오류 (409): `CHECKLIST_NOT_DONE` 체크리스트가 아직 남음, `PLAN_AGREED` 이미 두 사람이 동의함""")
@@ -71,7 +71,6 @@ public class PlanController {
 			description = """
 					항목 하나의 내용을 고쳐요. **고치면 상대방의 동의가 풀려서** 상대방이 다시 확인하고 동의해야 해요.
 					고친 사람의 동의는 그대로 남아요.
-					고치기 전 내용은 `previousContent` 에 남아서, 화면에서 "주 6일 → 주 5일"처럼 보여 줄 수 있어요.
 
 					오류: 404 항목 없음, 409 `PLAN_AGREED` 이미 두 사람이 동의함""")
 	@PatchMapping("/sections/{sectionId}")
