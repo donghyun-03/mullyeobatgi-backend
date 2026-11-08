@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -17,7 +18,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -66,8 +69,12 @@ class SuccessionFlowTest {
 		call(owner, put("/api/owner/shop"), shopJson(LocalDate.now().plusDays(300))).andExpect(status().isOk());
 		call(youth, put("/api/youth/profile"), youthJson("ONE_TO_3Y", 3000, true, 1800, "[\"중구\"]", true))
 				.andExpect(status().isOk());
-		call(youth2, put("/api/youth/profile"), youthJson("OVER_3Y", 5000, false, 0, "[\"수성구\"]", true))
-				.andExpect(status().isOk());
+		// 와이어프레임 C1 처럼 대출 금액과 새벽 근무 여부 없이도 등록된다
+		call(youth2, put("/api/youth/profile"), """
+				{"experience":"OVER_3Y","fundsReady":2000,"loanPlanned":true,
+				 "preferredCategories":["한식"],"preferredDistricts":["수성구"]}""")
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.earlyMorningOk").doesNotExist());
 		// 청년은 가게 등록을 못 한다
 		call(youth, put("/api/owner/shop"), shopJson(LocalDate.now().plusDays(300))).andExpect(status().isForbidden());
 		// 은퇴 희망일이 너무 가까우면 막는다
@@ -82,6 +89,11 @@ class SuccessionFlowTest {
 		assertThat((Integer) JsonPath.read(matches, "$[0].score")).isGreaterThan(JsonPath.read(matches, "$[1].score"));
 		assertThat((List<?>) JsonPath.read(matches, "$[0].reasons")).isNotEmpty();
 		assertThat((Object) JsonPath.read(matches, "$[0].aiComment")).isNull();
+		// 대출 금액 없이 대출 계획만 있으면 모자란 금액을 대출로 채운다고 보고, 새벽 근무는 '아직 모름'
+		List<String> secondReasons = JsonPath.read(matches, "$[1].reasons[*].text");
+		assertThat(secondReasons).contains("새벽 근무가 가능한지 아직 몰라요");
+		// 자금 = 20 × 1.0(대출로 다 채움) + 10 × (2,000 ÷ 4,800 ÷ 0.5) ≈ 28
+		assertThat((Integer) JsonPath.read(matches, "$[1].breakdown[1].points")).isEqualTo(28);
 
 		// ③ 제안·수락
 		String offer = body(call(owner, post("/api/offers"), "{\"youthId\":" + youthId + ",\"message\":\"같이 해요\"}")
@@ -105,6 +117,22 @@ class SuccessionFlowTest {
 		String checklist = body(call(owner, get(base + "/checklist"), null).andExpect(status().isOk()));
 		List<Integer> itemIds = JsonPath.read(checklist, "$.items[*].id");
 		assertThat(itemIds).hasSize(6);
+		assertThat((String) JsonPath.read(checklist, "$.dueDate")).isNotBlank();
+		// 서류 올리기 → 목록 → 내려받기
+		MockMultipartFile pdf = new MockMultipartFile("file", "대출승인서.pdf", "application/pdf",
+				"%PDF-1.4 test".getBytes());
+		String uploaded = body(call(youth, multipart(base + "/checklist/" + itemIds.get(2) + "/attachments").file(pdf),
+				null).andExpect(status().isOk())
+				.andExpect(jsonPath("$.items[2].attachments[0].fileName").value("대출승인서.pdf"))
+				.andExpect(jsonPath("$.items[2].attachments[0].uploadedBy").value("YOUTH")));
+		long attachmentId = id(uploaded, "$.items[2].attachments[0].id");
+		byte[] downloaded = call(owner, get(base + "/checklist/attachments/" + attachmentId), null)
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsByteArray();
+		assertThat(downloaded).isEqualTo("%PDF-1.4 test".getBytes());
+		MockMultipartFile exe = new MockMultipartFile("file", "a.exe", "application/octet-stream", new byte[] {1});
+		call(youth, multipart(base + "/checklist/" + itemIds.get(2) + "/attachments").file(exe), null)
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("FILE_TYPE"));
+		call(owner, delete(base + "/checklist/attachments/" + attachmentId), null).andExpect(status().isForbidden());
 		call(owner, post(base + "/plan"), null).andExpect(status().isConflict());
 		for (Integer itemId : itemIds) {
 			call(owner, post(base + "/checklist/" + itemId + "/confirm"), "{\"note\":\"확인\"}").andExpect(status().isOk());
@@ -122,15 +150,20 @@ class SuccessionFlowTest {
 		// ⑥ AI 승계 계획: 키가 없으면 템플릿 초안. 고치면 상대방 동의를 다시 받는다
 		String plan = body(call(owner, post(base + "/plan"), null).andExpect(status().isOk())
 				.andExpect(jsonPath("$.generatedBy").value("TEMPLATE"))
-				.andExpect(jsonPath("$.sections.length()").value(5)));
+				.andExpect(jsonPath("$.sections.length()").value(4)));
 		long sectionId = id(plan, "$.sections[1].id");
 		call(owner, post(base + "/plan/agree"), null).andExpect(jsonPath("$.ownerAgreed").value(true));
 		call(youth, patch(base + "/plan/sections/" + sectionId), "{\"content\":\"주 5일 근무로 바꿔요\"}")
 				.andExpect(jsonPath("$.ownerAgreed").value(false))
-				.andExpect(jsonPath("$.sections[1].editedBy").value("YOUTH"));
+				.andExpect(jsonPath("$.sections[1].editedBy").value("YOUTH"))
+				.andExpect(jsonPath("$.sections[1].previousContent").isNotEmpty())
+				.andExpect(jsonPath("$.sections[1].content").value("주 5일 근무로 바꿔요"));
 		call(youth, post(base + "/plan/agree"), null).andExpect(jsonPath("$.agreedByBoth").value(false));
 		call(owner, post(base + "/plan/agree"), null).andExpect(jsonPath("$.agreedByBoth").value(true));
-		call(owner, get(base), null).andExpect(jsonPath("$.status").value("APPRENTICE"));
+		call(owner, get(base), null).andExpect(jsonPath("$.status").value("APPRENTICE"))
+				.andExpect(jsonPath("$.planAgreedDate").isNotEmpty())
+				.andExpect(jsonPath("$.roadmapCurrentStage").value(1))
+				.andExpect(jsonPath("$.roadmapWaitingApproval").value(0));
 
 		// ⑦ 수습 로드맵: 청년이 요청, 사장님이 승인
 		String roadmap = body(call(youth, get(base + "/roadmap"), null).andExpect(status().isOk())
@@ -142,7 +175,8 @@ class SuccessionFlowTest {
 		// 다시 해 보기
 		call(youth, post(base + "/roadmap/tasks/" + taskIds.get(0) + "/request"), "{\"memo\":\"다 했어요\"}")
 				.andExpect(status().isOk());
-		call(owner, get(base), null).andExpect(jsonPath("$.pendingActions[0].type").value("ROADMAP_APPROVE"));
+		call(owner, get(base), null).andExpect(jsonPath("$.pendingActions[0].type").value("ROADMAP_APPROVE"))
+				.andExpect(jsonPath("$.roadmapWaitingApproval").value(1));
 		call(owner, post(base + "/roadmap/tasks/" + taskIds.get(0) + "/send-back"), "{\"reason\":\"한 번 더\"}")
 				.andExpect(status().isOk());
 		call(youth, get(base), null).andExpect(jsonPath("$.pendingActions[0].type").value("ROADMAP_RETRY"));
@@ -201,7 +235,7 @@ class SuccessionFlowTest {
 	}
 
 	private ResultActions call(String token,
-			org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request, String json)
+			org.springframework.test.web.servlet.request.AbstractMockHttpServletRequestBuilder<?> request, String json)
 			throws Exception {
 		request.header("Authorization", "Bearer " + token);
 		if (json != null) {

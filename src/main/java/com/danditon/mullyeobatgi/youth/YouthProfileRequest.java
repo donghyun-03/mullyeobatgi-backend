@@ -22,14 +22,15 @@ public record YouthProfileRequest(
 		@PositiveOrZero int fundsReady,
 		@Schema(description = "대출 계획이 있는지", example = "true")
 		boolean loanPlanned,
-		@Schema(description = "대출로 마련할 금액 (만 원). loanPlanned 가 false 면 무시해요", example = "1800")
+		@Schema(description = "대출로 마련할 금액 (만 원). 선택. loanPlanned 가 true 인데 비우면 모자란 금액을 대출로 채운다고 보고 점수를 내요",
+				example = "1800")
 		@PositiveOrZero int loanAmount,
 		@Schema(description = "희망 업종. 가게의 category 와 같은 글자로 비교해요", example = "[\"한식\", \"면 요리\"]")
 		@Size(max = 10) List<@Size(max = 20) String> preferredCategories,
 		@Schema(description = "희망 지역(구). 가게의 district 와 같은 글자로 비교해요", example = "[\"중구\", \"남구\"]")
 		@Size(max = 10) List<@Size(max = 20) String> preferredDistricts,
-		@Schema(description = "새벽 근무가 가능한지", example = "true")
-		boolean earlyMorningOk,
+		@Schema(description = "새벽 근무가 가능한지. 선택. 비우면 '아직 모름'으로 보고 매칭 점수를 절반만 줘요", example = "true")
+		Boolean earlyMorningOk,
 		@Schema(description = "자기소개", example = "면 요리를 제대로 배우고 싶어요")
 		@Size(max = 500) String intro) {
 }

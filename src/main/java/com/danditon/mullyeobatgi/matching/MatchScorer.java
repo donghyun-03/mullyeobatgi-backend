@@ -70,7 +70,10 @@ public class MatchScorer {
 
 		if (!shop.isEarlyMorning()) {
 			points += 10;
-		} else if (youth.isEarlyMorningOk()) {
+		} else if (youth.getEarlyMorningOk() == null) {
+			points += 5;
+			reasons.add(new Reason(ReasonType.CAUTION, "새벽 근무가 가능한지 아직 몰라요"));
+		} else if (youth.getEarlyMorningOk()) {
 			points += 10;
 			reasons.add(new Reason(ReasonType.GOOD, "새벽 근무가 가능해요"));
 		} else {
@@ -82,7 +85,9 @@ public class MatchScorer {
 	private int funds(Shop shop, YouthProfile youth, List<Reason> reasons) {
 		int price = shop.getAskingPrice();
 		int ready = youth.getFundsReady();
-		int loan = youth.isLoanPlanned() ? youth.getLoanAmount() : 0;
+		// 대출 계획만 있고 금액을 안 적었으면 모자란 만큼 대출로 채운다고 본다
+		int loan = !youth.isLoanPlanned() ? 0
+				: youth.getLoanAmount() > 0 ? youth.getLoanAmount() : Math.max(0, price - ready);
 		double coverage = Math.min(1.0, (double) (ready + loan) / price);
 		double ownShare = Math.min(1.0, (double) ready / price / 0.5);
 		int points = (int) Math.round(20 * coverage + 10 * ownShare);

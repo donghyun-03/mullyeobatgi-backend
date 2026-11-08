@@ -67,8 +67,14 @@ public class SuccessionService {
 		Timeline timeline = s.timeline();
 		List<ChecklistItem> checklist = checklistItems.findBySuccessionIdOrderBySeq(s.getId());
 		Plan plan = plans.findBySuccessionId(s.getId()).orElse(null);
-		List<RoadmapTask> tasks = roadmapStages.findBySuccessionIdOrderBySeq(s.getId()).stream()
-				.flatMap(stage -> stage.getTasks().stream()).toList();
+		List<RoadmapStage> stages = roadmapStages.findBySuccessionIdOrderBySeq(s.getId());
+		List<RoadmapTask> tasks = stages.stream().flatMap(stage -> stage.getTasks().stream()).toList();
+		Integer currentStage = stages.stream().filter(stage -> !stage.isApproved()).findFirst()
+				.map(RoadmapStage::getSeq).orElse(null);
+		int waitingApproval = (int) tasks.stream().filter(t -> t.getStatus() == TaskStatus.REQUESTED).count();
+		LocalDate planAgreedDate = plan == null || !plan.isAgreedByBoth() ? null
+				: (plan.getOwnerAgreedAt().isAfter(plan.getYouthAgreedAt()) ? plan.getOwnerAgreedAt()
+						: plan.getYouthAgreedAt()).toLocalDate();
 		List<PaymentInstallment> pays = payments.findBySuccessionIdOrderBySeq(s.getId());
 
 		Count checklistCount = new Count((int) checklist.stream().filter(ChecklistItem::isDone).count(), checklist.size());
@@ -83,7 +89,8 @@ public class SuccessionService {
 				s.getYouth().getName(), s.getPrice(), s.getRetireDate(),
 				Math.max(0, ChronoUnit.DAYS.between(today, s.getRetireDate())),
 				progressPercent(s.getStatus(), checklistCount, plan != null, roadmapCount, paymentCount),
-				checklistCount, plan != null, plan != null && plan.isAgreedByBoth(), roadmapCount, paymentCount,
+				checklistCount, plan != null, plan != null && plan.isAgreedByBoth(), planAgreedDate, roadmapCount,
+				currentStage, waitingApproval, paymentCount,
 				nextStep(s.getStatus(), timeline),
 				actions(s, side, checklist, plan, tasks, pays, today));
 	}

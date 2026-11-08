@@ -44,6 +44,10 @@ public class PlanSection {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 
+	/** 마지막으로 고치기 전 내용. 화면에서 "바뀌기 전 → 바뀐 후"로 보여 준다 */
+	@Column(columnDefinition = "TEXT")
+	private String previousContent;
+
 	@Enumerated(EnumType.STRING)
 	private Role editedBy;
 
@@ -58,6 +62,7 @@ public class PlanSection {
 	}
 
 	public void edit(Role editor, String content, LocalDateTime now) {
+		this.previousContent = this.content;
 		this.content = content;
 		this.editedBy = editor;
 		this.editedAt = now;
